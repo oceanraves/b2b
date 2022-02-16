@@ -59,8 +59,6 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
-
-
         if (_healing)
         {
             if (currentHealth < _playerHealth)

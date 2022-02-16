@@ -37,8 +37,8 @@ public class PlayerController : MonoBehaviour
 
     private float groundCheckTimer = 0f;
 
-    public GameObject hitBox_0;
-    public GameObject hitBox_1;
+    public GameObject hitBox_hand;
+    public GameObject hitBox_foot;
 
     float tAngle;
 
@@ -74,8 +74,8 @@ public class PlayerController : MonoBehaviour
         _looForPickup = gameObject.GetComponent<LookForPickup>();
         _animator = playerModel.GetComponent<Animator>();
 
-        hitBox_0.gameObject.SetActive(false);
-        hitBox_1.gameObject.SetActive(false);
+        hitBox_hand.gameObject.SetActive(false);
+        hitBox_foot.gameObject.SetActive(false);
 
         _playerAnimation = gameObject.GetComponent<PlayerAnimation>();
         _playerHealth = gameObject.GetComponent<PlayerHealth>();
@@ -116,17 +116,17 @@ public class PlayerController : MonoBehaviour
             if (canMove)
             {
                 _pAttacks.Push();
-                //_animator.SetTrigger("Punch_0");
-                //hitBox_0.gameObject.SetActive(true);
-            } //canMove = false;
+                //hitBox_hand.gameObject.SetActive(true);
+                _animator.SetTrigger("Attack_Push");
+            }
         }
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             if (canMove)
             {
-                //_animator.SetTrigger("Kick_0");
-                //hitBox_1.gameObject.SetActive(true);
-            } //canMove = false;
+                _pAttacks.Orb();
+                _animator.SetTrigger("Attack_Orb");
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse2))
@@ -134,7 +134,6 @@ public class PlayerController : MonoBehaviour
             if (canMove)
             {
                 //_animator.SetTrigger("Punch_1");
-                //hitBox_0.gameObject.SetActive(true);
             } //canMove = false;
         }
 
@@ -170,14 +169,11 @@ public class PlayerController : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            //_playerHealth.AddHealth();
-            if (_looForPickup._pickedUp)
-            {
-                gameObject.GetComponent<EatEnemy>().Eat();
-            }
-
-
-            //X health up
+            _playerHealth.AddHealth();
+            //if (_looForPickup._pickedUp)
+            //{
+            //    gameObject.GetComponent<EatEnemy>().Eat();
+            //
             //enemy eaten animation
             //drop enemy
         }
@@ -268,9 +264,9 @@ public class PlayerController : MonoBehaviour
 
     public void AttackDone()
     {
-        CanMove();
-        hitBox_0.gameObject.SetActive(false);
-        hitBox_1.gameObject.SetActive(false);
+        //CanMove();
+        hitBox_hand.gameObject.SetActive(false);
+        hitBox_foot.gameObject.SetActive(false);
     }
 
     public float GiveSpeed()
