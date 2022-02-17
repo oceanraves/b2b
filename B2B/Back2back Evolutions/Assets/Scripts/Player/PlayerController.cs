@@ -148,10 +148,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (_rolling)
-        {
-            _characterController.Move(_dir * 0.15f);
-        }
+
         //----------------------------------------------
 
 
@@ -176,6 +173,12 @@ public class PlayerController : MonoBehaviour
             //
             //enemy eaten animation
             //drop enemy
+        }
+
+
+        if (_rolling)
+        {
+            _characterController.Move(_dir * 0.15f);
         }
         //----------------------------------------------
     }
@@ -215,7 +218,7 @@ public class PlayerController : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
 
-            _characterController.Move(direction.normalized * _speed * Time.deltaTime);
+            _characterController.Move(direction * _speed * Time.deltaTime);
 
             _dir = direction;
             tAngle = targetAngle;
