@@ -237,7 +237,6 @@ public class PlayerController : MonoBehaviour
 
     public void AttackDone()
     {
-        //CanMove();
         hitBox_hand.gameObject.SetActive(false);
         hitBox_foot.gameObject.SetActive(false);
     }
