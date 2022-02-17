@@ -215,7 +215,9 @@ public class PlayerController : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
 
-            _characterController.Move(direction.normalized * _speed * Time.deltaTime);
+            Vector3 movement = direction;
+            movement.y = 0;
+            _characterController.Move( movement.normalized * _speed * Time.deltaTime);
 
             _dir = direction;
             tAngle = targetAngle;
