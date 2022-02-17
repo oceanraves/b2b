@@ -90,11 +90,11 @@ public class PlayerController : MonoBehaviour
             groundCheckTimer = 0;
         }
 
-        if (liftingCar)
-        {
-            canMove = false;
-        } else
-        {
+        //if (liftingCar)
+        //{
+        //    canMove = false;
+        //} else
+        //{
             //RUN-------------------------------------------
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {   //_speed = runSpeed;
@@ -106,7 +106,7 @@ public class PlayerController : MonoBehaviour
                 _runAnim = false;
             }
             //----------------------------------------------
-        }
+        //}
 
         PlayerMovement();
 
@@ -215,13 +215,13 @@ public class PlayerController : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
 
-            _characterController.Move(direction * _speed * Time.deltaTime);
+            _characterController.Move(direction.normalized * _speed * Time.deltaTime);
 
             _dir = direction;
             tAngle = targetAngle;
             _cameraDirection = rotation;
         }
-        MoveAnimation(direction);
+        _playerAnimation.MoveAnimation(direction, _runAnim);
     }
 
     public Quaternion CameraDirection()
@@ -235,33 +235,6 @@ public class PlayerController : MonoBehaviour
         return contacts != 0;
     }
 
-    private void MoveAnimation(Vector3 direction)
-    {
-        if (direction.magnitude >= 0.1f)
-        {
-            if (_runAnim)
-            {
-            _playerAnimation.Animate(false, "Walk");
-            _playerAnimation.Animate(true, "Run");
-            }
-            if (!_runAnim)
-            {
-            _playerAnimation.Animate(false, "Run");
-            _playerAnimation.Animate(true, "Walk");
-            }
-            if (liftingCar)
-            {
-            _playerAnimation.Animate(true, "LiftWalk");
-            }
-        }
-
-        if (direction.magnitude < 0.1f)
-        {
-            _playerAnimation.Animate(false, "Walk");
-            _playerAnimation.Animate(false, "Run");
-        }
-    }
-
     public void AttackDone()
     {
         //CanMove();
@@ -271,23 +244,6 @@ public class PlayerController : MonoBehaviour
 
     public float GiveSpeed()
     {return _speed;}
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == 8)
-        {
-            this.GetComponent<Rigidbody>().isKinematic = true;
-            this.GetComponent<Rigidbody>().useGravity = false;
-        }
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.layer == 8)
-        {
-            this.GetComponent<Rigidbody>().isKinematic = true;
-            this.GetComponent<Rigidbody>().useGravity = false;
-        }
-    }
 
     public void HitByCar()
     {

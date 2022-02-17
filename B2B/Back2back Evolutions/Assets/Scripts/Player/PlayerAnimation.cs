@@ -11,6 +11,29 @@ public class PlayerAnimation : MonoBehaviour
         _animator = gameObject.GetComponent<Animator>();
     }
 
+    public void MoveAnimation(Vector3 direction, bool runAnim)
+    {
+        if (direction.magnitude >= 0.1f)
+        {
+            if (runAnim)
+            {
+                Animate(false, "Walk");
+                Animate(true, "Run");
+            }
+            if (!runAnim)
+            {
+                Animate(false, "Run");
+                Animate(true, "Walk");
+            }
+        }
+
+        if (direction.magnitude < 0.1f)
+        {
+            Animate(false, "Walk");
+            Animate(false, "Run");
+        }
+    }
+
     public void Animate(bool condition, string type)
     {
         if (condition == true && type == "Walk")
