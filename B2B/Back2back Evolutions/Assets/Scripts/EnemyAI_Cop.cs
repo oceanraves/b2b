@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,10 +6,25 @@ public class EnemyAI_Cop : MonoBehaviour
     public Transform target;
     GameObject bulletClone;
 
-    float maximumLookDistance = 30f;
-    public float maximumAttackDistance = 10f;
+    public float maximumLookDistance = 30f;
+    public float walkDistance = 16f;
     public float minimumDistanceFromPlayer;
+    public float maximumAttackDistance = 10f;
     public float rotationSpeed;
+
+    [SerializeField]
+    float walkBuffert;
+    [SerializeField]
+    GameObject firePoint;
+
+    [SerializeField]
+    GameObject gunFlash;
+
+    [SerializeField]
+    float walkSpeed;
+
+    [SerializeField]
+    float runSpeed;
 
     public float shotInterval = 0.5f;
     float shotTime = 0f;
@@ -21,72 +34,84 @@ public class EnemyAI_Cop : MonoBehaviour
 
     private Rigidbody _rb;
 
-    public Vector3 _direction;
-    public float power;
-    private float _ogPower;
-    public float yValue;
-    private float _ogYvalue;
+    Animator_Swat animatorScript;
 
-    private bool _hit = false;
+    private bool showGunFlash = false;
 
-    private float _timeSinceKick = 0;
-    private bool _getUp = false;
-    int bounceCounter = 0;
 
-    [SerializeField]
-    int _playerDamage;
-
-    [SerializeField]
-    int maxHealth;
-
-    private int _health;
-
-    private bool _alreadyHit = false;
-
-    private bool _pickedUp = false;
-
-    public bool thrown = false;
     private void Start()
     {
+        animatorScript = GetComponent<Animator_Swat>();
         _namMeshAgent = gameObject.GetComponent<NavMeshAgent>();
-        _rb = gameObject.GetComponent<Rigidbody>();
-        _ogPower = power;
-        _ogYvalue = yValue;
+        _rb = GetComponent<Rigidbody>();
 
-        _health = maxHealth;
     }
     void Update()
     {
-        _alreadyHit = false;
-
-        if (Moving_Enabled && _namMeshAgent.enabled == true)
+        if (showGunFlash && ((shotTime + 0.03f) < Time.time))
         {
-            float distance = Vector3.Distance(target.position, transform.position);
-            if (distance <= maximumLookDistance)
-            {
-                LookAtTarget();
-
-                    if (distance <= minimumDistanceFromPlayer)
-                    {
-                        _namMeshAgent.isStopped = true;
-                    }
-                    else
-                    {
-                        _namMeshAgent.isStopped = false;
-                        _namMeshAgent.SetDestination(target.position);
-                    }
-                
-
-                if (distance <= maximumAttackDistance && (Time.time - shotTime) > shotInterval && !target.GetComponent<LookForPickup>().IsPickedUp())
-                {
-                    Shoot();
-                }
-            }
+            gunFlash.SetActive(false);
+            showGunFlash = false;
         }
 
-        if (Time.time > _timeSinceKick + 4 && (_hit || thrown))
+        if (Moving_Enabled)
         {
-            GetUp();
+            float distance = Vector3.Distance(target.position, transform.position);
+
+            if (distance <= maximumLookDistance)
+            {
+                //Rotates Towards Player
+                LookAtTarget();
+                //
+
+                //STANDING STILL WHEN NEAR PLAYER
+                if (distance <= minimumDistanceFromPlayer)
+                { 
+                    //_namMeshAgent.isStopped = true;
+                    _namMeshAgent.speed = 0;
+                    _namMeshAgent.enabled = false;
+                    animatorScript.Animate("Idle");
+                }
+                /*
+                if (distance <= (minimumDistanceFromPlayer + 3))
+                {
+                    //MOVE THE ENEMY AWAY FROM PLAYER
+                }
+                */
+
+                //WALKING
+                if (distance <= walkDistance && distance > minimumDistanceFromPlayer)
+                {
+                    _namMeshAgent.speed = walkSpeed;
+                    _namMeshAgent.enabled = true;
+                    animatorScript.Animate("Walk");
+                    _namMeshAgent.SetDestination(target.position);
+
+                }
+                //RUNNING
+                if (distance <= maximumLookDistance && distance > minimumDistanceFromPlayer && distance > walkDistance + walkBuffert)
+                {
+                    _namMeshAgent.speed = runSpeed;
+                    //_namMeshAgent.isStopped = false;
+                    _namMeshAgent.enabled = true;
+                    animatorScript.Animate("Run");
+                    _namMeshAgent.SetDestination(target.position);
+
+                }
+            }
+            
+            //else
+            //{
+            //    //IDLE
+            //    _namMeshAgent.speed = 0;
+            //    _namMeshAgent.enabled = false;
+            //    animatorScript.Animate("Idle");
+            //}
+
+            if (distance <= maximumAttackDistance && (Time.time - shotTime) > shotInterval)
+            {
+                Shoot();
+            }
         }
     }
 
@@ -100,124 +125,80 @@ public class EnemyAI_Cop : MonoBehaviour
 
     private void Shoot()
     {
+        //GUNFLASH//-------------
         shotTime = Time.time;
+        gunFlash.SetActive(true);
+        showGunFlash = true;
+        //-----------------------
 
-        bulletClone = Instantiate(Resources.Load("Bullet") as GameObject, gameObject.transform.Find("GunPoint").transform.position,
-            Quaternion.LookRotation(target.position - transform.position));
+        //ANIMATION: NEEDS ANIMATION CLIP
+        //animatorScript.Animate("Shoot");
+        //animatorScript.Animate("Idle");
+        //-------------------------------
+
+        //MOVEMENT STOP-------------------
+        _namMeshAgent.speed = 0;
+        _namMeshAgent.enabled = false;
+        Moving_Enabled = false;
+        Invoke("EnableMoving", 0.4f);
+        //--------------------------------
+
+        //BULLETSPAWN-------------------------------------------------------
+        bulletClone = Instantiate(Resources.Load("ShellLow") as GameObject, firePoint.transform.position,
+        Quaternion.LookRotation(target.position - transform.position));
+        bulletClone.GetComponent<BulletMovement>().GetTarget(target);
+        //------------------------------------------------------------------
     }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == 8)
-        {
-            if (_hit || thrown)
-            {
-                if (bounceCounter < 3)
-                {
-                    bounceCounter++;
-                    power = power * 0.8f;
-                    yValue = yValue * 0.6f;
-
-                    _direction += new Vector3(0f, yValue, 0f);
-                    _rb.AddForce(_direction * power, ForceMode.Impulse);
-                }
-                else
-                {
-                    _alreadyHit = false;
-                    TakeDamage();
-                    GetUp();
-                }
-            }
-        }
-        //if (collision.gameObject.tag == "InanimateObject" && collision.gameObject.GetComponent<ObjectPickUp>() != null) 
-        //{
-        //        if (collision.gameObject.GetComponent<ObjectPickUp>().copCar)
-        //        {
-        //            GameObject flattened = Instantiate(Resources.Load("Enemy_Flattened") as GameObject, gameObject.transform.position, Quaternion.identity);
-        //            Vector3 fPos = flattened.transform.position;
-        //            fPos.y = 5f;
-        //            flattened.transform.position = fPos;
-        //            Destroy(gameObject);
-        //        }
-        //}
-
-        if(collision.gameObject.tag == "Enemy")
-        {
-            PushAway();
-        }
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "PlayerHitBox")
-        {
-            PushAway();
-            if (_alreadyHit) return;
-            _alreadyHit = true;
-            _health -= _playerDamage;
-
-            if (_health <= 0)
-            {
-                Destroy(gameObject);
-            }
-        }
-    }
-
-    private void PushAway()
-    {
-        SetFlyProperties();
-        _direction = (target.transform.forward + new Vector3(0f, yValue, 0f));
-
-        float xRot = Random.Range(-30f, 30f);
-        float yRot = Random.Range(-40f, 40f);
-
-        _rb.AddForce(_direction * power, ForceMode.Impulse);
-        _rb.AddTorque(new Vector3(xRot, yRot, 0), ForceMode.Impulse);
-        _hit = true;
-
-    }
-    private void GetUp()
-    {
-        _hit = false;
-        _namMeshAgent.enabled = true;
-        _rb.isKinematic = true;
-        _rb.useGravity = false;
-        Moving_Enabled = true;
-        power = _ogPower;
-        yValue = _ogYvalue;
-        bounceCounter = 0;
-        thrown = false;
-    }
-    private void TakeDamage()
-    {
-        if (_alreadyHit) return;
-        _alreadyHit = true;
-        _health -= _playerDamage;
-
-        if (_health <= 0)
-        {
-            //ENEMY DEATH//
-            //Play death animation
-            _namMeshAgent.enabled = false;
-            Moving_Enabled = false;
-            _rb.isKinematic = true;
-            _rb.useGravity = false;
-            LayDown();
-
-            //Destroy(gameObject);
-        }
-    }
-
-    public void SetFlyProperties()
+    public void OnDeath()
     {
         _namMeshAgent.enabled = false;
         Moving_Enabled = false;
-        _rb.isKinematic = false;
-        _rb.useGravity = true;
-        _timeSinceKick = Time.time;
+        _rb.isKinematic = true;
+        _rb.useGravity = false;
     }
 
-    public void LayDown()
+    public void DisableMovement(bool disable)
     {
-        gameObject.transform.localRotation = new Quaternion(-90f, 180f, 0f, 0f);
+        if (disable)
+        {
+            _namMeshAgent.enabled = false;
+            Moving_Enabled = false;
+        }
+        else
+        {
+            //Debug.Log("Enabled Movement");
+            _namMeshAgent.enabled = true;
+            Moving_Enabled = true;
+        }
     }
+    private void EnableMoving()
+    {
+        DisableMovement(false);
+    }
+    public Transform GetTarget
+    {
+        get { return target; }
+    }
+
+    //private void GetUp()
+    //{
+    //    _hit = false;
+    //    _namMeshAgent.enabled = true;
+    //    _rb.isKinematic = true;
+    //    _rb.useGravity = false;
+    //    Moving_Enabled = true;
+    //    power = _ogPower;
+    //    yValue = _ogYvalue;
+    //    bounceCounter = 0;
+    //    thrown = false;
+    //}
+
+
+
+
+
+    //public void LayDown()
+    //{
+    //    gameObject.transform.localRotation = new Quaternion(-90f, 180f, 0f, 0f);
+    //}
 }

@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class PlayerCollision : MonoBehaviour
 {
+    PlayerAnimation playerAnimation;
+
     private void Start()
     {
+        playerAnimation = GetComponent<PlayerAnimation>();
     }
-    
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.layer == 8)
@@ -22,6 +24,19 @@ public class PlayerCollision : MonoBehaviour
         {
             this.GetComponent<Rigidbody>().isKinematic = true;
             this.GetComponent<Rigidbody>().useGravity = false;
+        }
+
+        if (other.gameObject.tag == "Water")
+        {
+            playerAnimation.Animate(true, "Squat");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Water")
+        {
+            playerAnimation.Animate(false, "Squat");
         }
     }
 }

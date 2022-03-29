@@ -5,6 +5,9 @@ using UnityEngine;
 public class PlayerAnimation : MonoBehaviour
 {
     private Animator _animator;
+    
+    [SerializeField]
+    private GameObject eventHandler;
 
     void Start()
     {
@@ -70,6 +73,15 @@ public class PlayerAnimation : MonoBehaviour
         {
             _animator.SetTrigger("Shot");
         }
+
+        if (condition == true && type == "Squat")
+        {
+            _animator.SetBool("Squat", true);
+        }
+        if (condition == false && type == "Squat")
+        {
+            _animator.SetBool("Squat", false);
+        }
     }
 
     public void CancelHoldAnimation()
@@ -80,5 +92,18 @@ public class PlayerAnimation : MonoBehaviour
     public void LiftCarAnimation()
     {
         Animate(false, "LiftWalk");
+    }
+
+        
+    public void PlayerHitGround()
+    {
+
+        eventHandler.GetComponent<EventHandler>().Impact();
+        eventHandler.GetComponent<EventHandler>().ImpactOnObjects();
+    }
+
+    public void PlayerStanding()
+    {
+        eventHandler.GetComponent<EventHandler>().PlayerStanding();
     }
 }

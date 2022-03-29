@@ -11,7 +11,7 @@ public class ObjectCollision : MonoBehaviour
     float torque;
     float turn;
 
-    private int _lives = 5;
+    //private int _lives = 5;
     bool canBeHitAgain = true;
 
     [SerializeField]
@@ -28,9 +28,10 @@ public class ObjectCollision : MonoBehaviour
     private GameObject _collisionPos;
     private PlayerController _playerController;
 
+
     void Start()
     {
-        _playerTransform = GameObject.Find("Player").transform.GetChild(0).transform;
+        _playerTransform = GameObject.Find("PlayerMover").transform.GetChild(0).transform;
         _objectPickup = gameObject.GetComponent<ObjectPickUp>();
         _playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     }
@@ -138,10 +139,21 @@ public class ObjectCollision : MonoBehaviour
 
             _direction = _playerTransform.forward;
 
-            GameObject waterStream = Instantiate(Resources.Load("WaterStream") as GameObject, waterPos, Quaternion.identity);
+            GameObject waterStream = Instantiate(Resources.Load("VFX_FireHydrant_Water") as GameObject, waterPos, Quaternion.identity);
             gameObject.GetComponent<Rigidbody>().isKinematic = false;
             gameObject.GetComponent<Rigidbody>().AddForce(_direction * _power, ForceMode.Impulse);
             hit = true;
+            hasSpawnedWater = true;
+
+            GameObject waterCollider = new GameObject();
+            waterCollider.name = "WaterCollider";
+            waterCollider.tag = "Water";
+            waterCollider.transform.SetParent(transform.parent);
+            waterCollider.transform.localPosition = Vector3.zero;
+            BoxCollider collider = waterCollider.AddComponent<BoxCollider>();
+            collider.center = new Vector3(0f, 4, 0f);
+            collider.size = new Vector3(3f, 8f, 3f);
+            collider.isTrigger = true;
         }
     }
 }

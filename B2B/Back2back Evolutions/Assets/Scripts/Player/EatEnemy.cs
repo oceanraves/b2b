@@ -23,10 +23,10 @@ public class EatEnemy : MonoBehaviour
 
         _objectPickup.pickedUp = false;
         _lookForPickup._pickedUp = false;
-        _enemyAI.SetFlyProperties();
+        //_enemyAI.SetFlyProperties();
 
         _playerHealth.AddHealth();
-        _enemyAI.LayDown();
+        //_enemyAI.LayDown();
 
         Invoke("DestroyEnemy", 3f);
     }

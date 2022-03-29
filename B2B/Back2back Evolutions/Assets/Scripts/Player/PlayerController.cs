@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
     //private ObjectPickUp _objectPickup;
 
     private bool _canThrow = false;
-    private bool thrown = true;
+    //private bool thrown = true;
 
     private Quaternion _cameraDirection;
 
@@ -83,18 +83,18 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (Input.anyKeyDown)
+        {
+            _playerAnimation.Animate(false, "Squat");
+        }
+
+
         groundCheckTimer += Time.deltaTime;
         if (groundCheckTimer > 0.25f)
         {
             grounded = IsGrounded();
             groundCheckTimer = 0;
         }
-
-        //if (liftingCar)
-        //{
-        //    canMove = false;
-        //} else
-        //{
             //RUN-------------------------------------------
             if (Input.GetKeyDown(KeyCode.LeftShift))
             {   //_speed = runSpeed;
@@ -106,8 +106,6 @@ public class PlayerController : MonoBehaviour
                 _runAnim = false;
             }
             //----------------------------------------------
-        //}
-
         PlayerMovement();
 
         //INPUT-----------------------------------------
@@ -127,14 +125,6 @@ public class PlayerController : MonoBehaviour
                 _pAttacks.Orb();
                 _animator.SetTrigger("Attack_Orb");
             }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Mouse2))
-        {
-            if (canMove)
-            {
-                //_animator.SetTrigger("Punch_1");
-            } //canMove = false;
         }
 
         if (Input.GetKeyDown(KeyCode.Space))

@@ -45,7 +45,6 @@ public class ObjectPickUp : MonoBehaviour
     LookForPickup lookForPickup;
 
     Quaternion rotation;
-
     void Awake()
     {
         //pickUpLayer = 1 << LayerMask.NameToLayer("PickUp");
@@ -151,12 +150,14 @@ public class ObjectPickUp : MonoBehaviour
 
             if (enemyCop)
             {
-                gameObject.GetComponent<EnemyAI_Cop>().thrown = true;
-                gameObject.GetComponent<EnemyAI_Cop>().yValue = 2f;
+                
+                //gameObject.GetComponent<EnemyHealth>().thrown = true;
+                //gameObject.GetComponent<EnemyHealth>().yValue = 2f;
 
-                gameObject.GetComponent<EnemyAI_Cop>().SetFlyProperties();
+                //gameObject.GetComponent<EnemyHealth>().SetFlyProperties();
                 torque = Random.Range(-150f, 300f);
                 turn = Random.Range(-100f, 200f);
+                
             }
 
             else
@@ -170,7 +171,7 @@ public class ObjectPickUp : MonoBehaviour
             runSpeed = _pController.GiveSpeed();
             gameObject.GetComponent<Rigidbody>().isKinematic = false;
             gameObject.GetComponent<Rigidbody>().AddForce(_direction * _throwPower * (runSpeed * 0.8f), ForceMode.Impulse);
-            gameObject.GetComponent<Rigidbody>().AddTorque(new Vector3(100f, 1f, 0f) * torque * turn);
+            gameObject.GetComponent<Rigidbody>().AddTorque(new Vector3(100f, 1f, 0f) * torque * turn); 
         }
         pickedUp = false;
         _useAsShield = false;

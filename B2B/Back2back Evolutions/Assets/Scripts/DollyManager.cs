@@ -5,23 +5,26 @@ using Cinemachine;
 
 public class DollyManager : MonoBehaviour
 {
-    [SerializeField] List<GameObject> cameras = new List<GameObject>();
-
+    [SerializeField] CinemachineVirtualCamera vCam0;
     [SerializeField] CinemachineVirtualCamera vCam1;
     [SerializeField] CinemachineVirtualCamera vCam2;
 
-    private bool _firstCamera = true;
+    private bool _firstCamera = false;
+
+    [SerializeField]
+    GameObject dollyCameras;
 
     void Start()
     {
-        string name = "Camera #";
-        int number = 0;
-        foreach (GameObject camera in cameras)
-        {
-            camera.name = name + number.ToString();
-            Debug.Log(camera.name);
-            number++;
-        }
+
+        //string name = "Camera #";
+        //int number = 0;
+        //foreach (GameObject camera in cameras)
+        //{
+        //    camera.name = name + number.ToString();
+        //    Debug.Log(camera.name);
+        //    number++;
+        //}
     }
 
     private void OnTriggerEnter(Collider other)
@@ -30,12 +33,16 @@ public class DollyManager : MonoBehaviour
         {
             SwitchPriority();
         }
+    }
 
+    public void IntroIsFinished()
+    {
+        vCam0.Priority = 0;
+        SwitchPriority();
     }
 
     private void SwitchPriority()
     {
-        Debug.Log("ahashdas");
         if (_firstCamera)
         {
             vCam1.Priority = 0;
@@ -53,5 +60,4 @@ public class DollyManager : MonoBehaviour
     {
         _firstCamera = !_firstCamera;
     }
-
 }

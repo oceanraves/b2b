@@ -23,7 +23,7 @@ public class LightSwitchCopCar : MonoBehaviour
     private Light _red;
     private Light _blue;
 
-    private float _counter = 0;
+    //private float _counter = 0;
 
     public float switchRate = 0.1f;
     void Start()

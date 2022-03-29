@@ -22,12 +22,9 @@ public class Animation_ArmyMan : MonoBehaviour
 
     private void SelectClip()
     {
-        int next = Random.Range(0, 2);
+        int next = Random.Range(1, 2);
         AnimationsClips[next].ToString();
         _animator.Play(AnimationsClips[next].name);
-        //Debug.Log("SelectClip Called");
-        //Debug.Log("index: " + next);
-        //Debug.Log("name: " + AnimationsClips[next].name);
     }
 
 

@@ -9,6 +9,7 @@ TagManager:
   - ExplosionTrigger
   - CarTrigger
   - Enemy
+  - Water
   layers:
   - Default
   - TransparentFX

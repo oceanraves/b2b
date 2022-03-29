@@ -14,7 +14,7 @@ public class PlayerHealth : MonoBehaviour
     private HealthBar _healthBar;
     private HealthBar _healthUpBar;
 
-    int number = 1;
+    //int number = 1;
 
     private bool _hasDied = false;
 
@@ -35,9 +35,12 @@ public class PlayerHealth : MonoBehaviour
     private Color _currentColor;
 
     //private HealthBar _healthBar;
-    void Start()
+    Vector3 bloodPos;
+
+    Quaternion bulletRotation;
+
+    public void InitiateUI()
     {
-        //_playerHealth = _maxHealth;
         _healthBarUI = GameObject.Find("Canvas").gameObject.transform.Find("Healthbar").gameObject;
         _healthBar = _healthBarUI.GetComponent<HealthBar>();
 
@@ -45,16 +48,13 @@ public class PlayerHealth : MonoBehaviour
         _currentColor = _ogColor;
         _healthBarUI.transform.Find("Fill").GetComponent<Image>().color = _currentColor;
 
-
-
         _healthBar.SetMaxHealth(_maxHealth);
         _healthBar.SetHealth(_playerHealth);
         _healthUpBar = _healthBar.gameObject.transform.Find("Restore").gameObject.GetComponent<HealthBar>();
         _healthUpBar.SetMaxHealth(_maxHealth);
         _healthUpBar.SetHealth(_playerHealth);
 
-
-        _pAnimation = gameObject.GetComponent<PlayerAnimation>();
+        _pAnimation = GetComponent<PlayerAnimation>();
     }
 
     void Update()
@@ -71,7 +71,8 @@ public class PlayerHealth : MonoBehaviour
                     _currentColor.r += 0.01f;
                     _currentColor.b += 0.01f;
 
-                    _healthBarUI.transform.Find("Fill").GetComponent<Image>().color += new Color(_currentColor.r, 0, _currentColor.b, 0);
+                    _healthBarUI.transform.Find("Fill").GetComponent<Image>().color
+                        += new Color(_currentColor.r, 0, _currentColor.b, 0);
                 }
             }
 
@@ -85,7 +86,8 @@ public class PlayerHealth : MonoBehaviour
                     _currentColor.g += 0.01f;
                     _currentColor.b += 0.01f;
 
-                    _healthBarUI.transform.Find("Fill").GetComponent<Image>().color += new Color(0, _currentColor.g, _currentColor.b, 0);
+                    _healthBarUI.transform.Find("Fill").GetComponent<Image>().color
+                        += new Color(0, _currentColor.g, _currentColor.b, 0);
                 }
             }
             else if (currentHealth == _playerHealth)
@@ -95,6 +97,15 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    public void HitLocation(Vector3 HitLocation)
+    {
+        bloodPos = HitLocation;
+    }
+
+    public void HitRotation(Quaternion rotation)
+    {
+        bulletRotation = rotation;
+    }
     public void HitByBullet(string enemyType)
     {
         if(enemyType == "Cop")
@@ -102,12 +113,12 @@ public class PlayerHealth : MonoBehaviour
             if (!_hasDied && !invincible)
             {
                 SubtractHealth();
-
+                SpawnBlood();
                 gameObject.GetComponent<PlayerController>().canMove = false;
 
                 if(_playerHealth > 0)
                 {
-                    //_pAnimation.Animate(true, "Player_Shot");
+                    _pAnimation.Animate(true, "Player_Shot");
                     Invoke("UnStagger", _staggeredTime);
                 }
             }
@@ -117,6 +128,15 @@ public class PlayerHealth : MonoBehaviour
             }
         }
     }
+
+    private void SpawnBlood()
+    {
+        GameObject playerBlood = Resources.Load("VFX_BloodSplatterPlayer") as GameObject;
+        bloodPos += new Vector3(0, 0, 0.1f);
+        GameObject bloodClone = Instantiate(playerBlood,bloodPos, Quaternion.Inverse(bulletRotation));
+        Destroy(bloodClone, 1.5f);
+    }
+
 
     private void SubtractHealth()
     {
