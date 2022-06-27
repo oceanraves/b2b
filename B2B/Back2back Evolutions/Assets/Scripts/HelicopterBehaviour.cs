@@ -52,6 +52,6 @@ public class HelicopterBehaviour : MonoBehaviour
         //} else
         //    _rb.velocity += Vector3.down;
 
-        gameObject.transform.position += new Vector3(0f, maxHeight, 0f) * Mathf.Cos(Time.time) * hoverSpeed;
+        gameObject.transform.position = new Vector3(0f, maxHeight, 0f) * Mathf.Cos(Time.time) * hoverSpeed;
     }
 }
